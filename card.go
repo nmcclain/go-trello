@@ -189,15 +189,34 @@ func (c *Card) AddComment(text string) (*Action, error) {
 	return newAction, nil
 }
 
-// ChangeList move the card to another list
+// SetList will move the card to another list
 // https://developers.trello.com/advanced-reference/card#put-1-cards-card-id-or-shortlink-idlist
-func (c *Card) ChangeList(listId string) (*Action, error) {
+func (c *Card) SetList(listId string) (*Action, error) {
 	newAction := &Action{}
 
 	payload := url.Values{}
 	payload.Set("value", listId)
 
 	body, err := c.client.Put("/cards/"+c.Id+"/idList", payload)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, newAction); err != nil {
+		return nil, err
+	}
+	newAction.client = c.client
+	return newAction, nil
+}
+
+// SetPos will set the card's position in its list
+// https://developers.trello.com/advanced-reference/card#put-1-cards-card-id-or-shortlink-pos
+func (c *Card) SetPos(pos string) (*Action, error) {
+	newAction := &Action{}
+
+	payload := url.Values{}
+	payload.Set("value", pos)
+
+	body, err := c.client.Put("/cards/"+c.Id+"/pos", payload)
 	if err != nil {
 		return nil, err
 	}
